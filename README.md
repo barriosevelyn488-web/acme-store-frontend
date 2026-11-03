@@ -1,41 +1,62 @@
-# 📚 Acme Store • Frontend
+# Acme Store - Frontend (100% POO)
 
-> **Aplicación Web para la Gestión de Biblioteca y Tienda Editorial**  
-> Desarrollada bajo **Programación Orientada a Objetos (POO)** pura en JavaScript, diseño profesional en Tailwind CSS, **cero emojis (100% iconos vectoriales SVG)**, modal de sinopsis al hacer clic en libros, gestión completa de usuarios para administradores y lista para desplegar en **Vercel**.
+Aplicacion Web para la Gestion de Biblioteca y Tienda Editorial, desarrollada estrictamente bajo Programacion Orientada a Objetos (POO) en JavaScript Vanilla y diseno con Tailwind CSS.
 
 ---
 
-## 🎨 Características Principales
+## 1. Repositorio Backend Conectado
+- **Backend API REST:** [https://github.com/barriosevelyn488-web/acme-store-backend](https://github.com/barriosevelyn488-web/acme-store-backend)
 
-1. **Cero Emojis & Estética Profesional:**  
-   Todos los elementos visuales emplean iconos vectoriales SVG estandarizados (Heroicons).
+---
+
+## 2. Caracteristicas Principales
+
+1. **Cero Emojis y Estetica Profesional:**  
+   Todos los elementos visuales emplean iconos vectoriales SVG limpios (Heroicons).
 2. **Modal de Detalle y Sinopsis de Libros:**  
-   Al hacer clic en cualquier tarjeta de libro del catálogo, se despliega un modal con la portada oficial, ISBN, editorial, año, precio, stock y el resumen argumental completo de la obra.
-3. **Inicio de Sesión Manual Estricto:**  
-   Acceso unificado por correo y contraseña sin botones demo automáticos, respetando los estándares de seguridad en producción.
-4. **Módulo de Gestión de Usuarios para el Administrador:**  
-   Panel dedicado con tabla de usuarios, creación de cuentas y actualización de roles (`admin` o `cliente`).
-5. **Integración con Open Library API:**  
-   Búsqueda global e importación con un clic hacia el inventario.
-6. **Programación Orientada a Objetos (POO):**  
+   Al hacer clic en cualquier tarjeta de libro del catalogo, se despliega un modal con portada oficial en alta resolucion, ISBN, editorial, anio, precio, stock en tiempo real, sinopsis completa y botones directos para prestar o comprar.
+3. **Inicio de Sesion Manual Estricto:**  
+   Acceso unificado por correo y contrasena sin botones demo automaticos.
+4. **Modulo de Gestion de Usuarios para el Administrador:**  
+   Panel dedicado con tabla de usuarios, creacion de cuentas y asignacion de roles (admin o cliente).
+5. **Integracion con Open Library API:**  
+   Busqueda global e importacion con un clic hacia el inventario.
+6. **Programacion Orientada a Objetos (POO):**  
    Estructurada en clases desacopladas:
-   - `ApiClient`: Comunicación HTTP y manejo de sesión.
-   - `AuthComponent`: Estado de autenticación y navegación condicional.
+   - `ApiClient`: Comunicacion HTTP con soporte para JWT en cookies y cabeceras.
+   - `AuthComponent`: Estado de autenticacion y navegacion condicional.
    - `BookDetailModalComponent`: Renderizado interactivo de sinopsis.
-   - `CatalogComponent`: Catálogo y filtros.
-   - `CartComponent`: Carrito de compras.
-   - `LoanComponent`: Préstamos y devoluciones.
-   - `SalesComponent`: Compras y facturación.
-   - `UserManagerComponent`: Directorio de usuarios para el admin.
-   - `AdminComponent`: Métricas y operaciones.
-   - `ProfileComponent`: Perfil de usuario con identificación inmutable.
+   - `CatalogComponent`: Catalogo reactivo con busqueda y filtros.
+   - `CartComponent`: Carrito de compras con persistencia local.
+   - `LoanComponent`: Prestamos y devoluciones con control de inventario.
+   - `SalesComponent`: Compras y generacion de recibo imprimible.
+   - `UserManagerComponent`: Directorio y CRUD de usuarios para el admin.
+   - `AdminComponent`: Metricas e importacion Open Library.
+   - `ProfileComponent`: Perfil de usuario con identificacion inmutable.
    - `ToastNotificationComponent`: Alertas visuales.
-   - `AppRouter`: Enrutamiento y control de vistas.
+   - `AppRouter`: Enrutador y orquestador central de vistas.
 
 ---
 
-## 🚀 Despliegue en Vercel
+## 3. Instalacion y Ejecucion Local
 
-1. Sube este repositorio a tu cuenta de GitHub (`barriosevelyn488-web/acme-store-frontend`).
-2. En [Vercel](https://vercel.com/new), selecciona **Import**.
-3. Haz clic en **Deploy**. El archivo `vercel.json` se encargará de configurar las rutas automáticamente.
+### Opcion A: Abrir directamente en el navegador
+Puedes abrir el archivo `index.html` en cualquier navegador web moderno. La aplicacion cuenta con deteccion de protocolo y catalogo de demostracion integrado.
+
+### Opcion B: Servidor local ligero (Live Server / Node)
+```bash
+# Con npx serve
+npx serve .
+
+# O con http-server
+npx http-server -p 5500
+```
+La interfaz abrira en `http://localhost:5500`.
+
+---
+
+## 4. Despliegue en Vercel
+
+1. Este repositorio ya contiene `vercel.json` configurado para enrutamiento estatico.
+2. En [Vercel](https://vercel.com/new), importa el repositorio `barriosevelyn488-web/acme-store-frontend`.
+3. Haz clic en **Deploy**.
