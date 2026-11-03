@@ -1,10 +1,23 @@
 // Pure OOP ApiClient Class
 class ApiClient {
   constructor() {
-    this._baseUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-      ? 'http://localhost:3000/api'
-      : '/api';
+    this._baseUrl = window.ACME_API_URL
+      || localStorage.getItem('acme_api_url')
+      || ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3000/api'
+        : '/api');
     this._storageKey = 'acme_store_token';
+  }
+
+  getBaseUrl() {
+    return this._baseUrl;
+  }
+
+  setBaseUrl(url) {
+    if (url) {
+      this._baseUrl = url.replace(/\/+$/, '');
+      localStorage.setItem('acme_api_url', this._baseUrl);
+    }
   }
 
   getToken() {
