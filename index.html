@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acme Store - Plataforma de Gestión y Tienda Editorial</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glassmorphism {
+      background: rgba(255, 255, 255, 0.90);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-brand-600 selection:text-white">
+
+  <!-- ==================== TOAST NOTIFICATIONS ==================== -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col space-y-3 pointer-events-none"></div>
+
+  <!-- ==================== TOP NAVIGATION ==================== -->
+  <header class="sticky top-0 z-40 glassmorphism border-b border-slate-200 shadow-sm transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        
+        <!-- Logo & Branding -->
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="appRouter.navigate('catalog')">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-700 via-brand-600 to-sky-500 flex items-center justify-center text-white shadow-lg shadow-brand-600/25">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+          </div>
+          <div>
+            <span class="font-serif text-2xl font-bold tracking-tight text-slate-900 block leading-tight">Acme Store</span>
+            <p class="text-xs text-slate-500 font-medium">Gestión Bibliotecaria y Catálogo Editorial</p>
+          </div>
+        </div>
+
+        <!-- Center Tabs -->
+        <nav class="hidden md:flex items-center space-x-1 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200">
+          <button id="nav-btn-catalog" onclick="appRouter.navigate('catalog')" class="nav-tab px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-brand-600 transition-all flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <span>Catálogo y Tienda</span>
+          </button>
+          
+          <button id="nav-btn-loans" onclick="appRouter.navigate('my-loans')" class="nav-tab hidden px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-brand-600 transition-all flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span>Mis Préstamos</span>
+          </button>
+
+          <button id="nav-btn-sales" onclick="appRouter.navigate('my-sales')" class="nav-tab hidden px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-brand-600 transition-all flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <span>Mis Compras</span>
+          </button>
+
+          <button id="nav-btn-admin" onclick="appRouter.navigate('admin')" class="nav-tab hidden px-4 py-2 rounded-xl text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-all flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span>Panel de Administración</span>
+          </button>
+        </nav>
+
+        <!-- Right Side: Cart + User Profile / Login -->
+        <div class="flex items-center space-x-3">
+          
+          <!-- Cart Button -->
+          <button onclick="cartComponent.openModal()" class="relative p-2.5 text-slate-600 hover:text-brand-600 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all shadow-sm">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <span id="cart-badge" class="hidden absolute -top-1.5 -right-1.5 px-2 py-0.5 text-[10px] font-bold bg-sky-600 text-white rounded-full ring-2 ring-white">0</span>
+          </button>
+
+          <!-- Guest State: Login Button -->
+          <div id="nav-guest" class="flex items-center space-x-2">
+            <button onclick="authComponent.openModal('login')" class="px-5 py-2.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-600/20 transition-all">
+              Iniciar Sesión
+            </button>
+          </div>
+
+          <!-- Logged In State: User Pill -->
+          <div id="nav-user" class="hidden relative">
+            <div class="flex items-center space-x-2 bg-white pl-2.5 pr-3 py-1.5 rounded-2xl border border-slate-200 shadow-sm">
+              <div id="user-avatar" class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs">
+                U
+              </div>
+              <div class="text-left cursor-pointer" onclick="appRouter.navigate('profile')">
+                <div id="user-display-name" class="text-xs font-bold text-slate-800 line-clamp-1 max-w-[120px]">Usuario</div>
+                <div id="user-role-badge" class="text-[10px] font-semibold uppercase text-brand-600">Cliente</div>
+              </div>
+              <button onclick="authComponent.logout()" title="Cerrar sesión" class="ml-2 text-slate-400 hover:text-rose-600 transition-colors p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT WRAPPER ==================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- ==================== VIEW 1: CATALOG & STORE ==================== -->
+    <section id="view-catalog" class="view-panel space-y-8">
+      
+      <!-- Hero Banner -->
+      <div class="relative overflow-hidden rounded-3xl bg-slate-900 text-white p-8 md:p-12 shadow-xl border border-slate-800">
+        <div class="relative z-10 max-w-2xl space-y-4">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-sky-300 border border-slate-700">
+            Catálogo Oficial de Libros
+          </span>
+          <h1 class="font-serif text-3xl md:text-5xl font-bold tracking-tight leading-tight">
+            Descubre, solicita en préstamo o adquiere tus libros.
+          </h1>
+          <p class="text-slate-300 text-sm md:text-base leading-relaxed">
+            Explora nuestra colección editorial con control riguroso de inventario en tiempo real. Haz clic en cualquier libro para consultar su sinopsis completa.
+          </p>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="relative w-full md:w-96">
+          <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input 
+            type="text" 
+            id="catalog-search" 
+            placeholder="Buscar por título, autor o ISBN..." 
+            oninput="catalogComponent.onSearch(this.value)"
+            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs bg-slate-50 focus:bg-white transition-all"
+          >
+        </div>
+
+        <div class="flex items-center space-x-2 w-full md:w-auto">
+          <button onclick="catalogComponent.filterAvailability(false)" class="catalog-filter-btn active px-4 py-2 rounded-xl text-xs font-semibold bg-brand-600 text-white shadow-sm transition-all" data-filter="all">
+            Todos los Libros
+          </button>
+          <button onclick="catalogComponent.filterAvailability(true)" class="catalog-filter-btn px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all" data-filter="available">
+            Solo Disponibles
+          </button>
+        </div>
+      </div>
+
+      <!-- Books Grid -->
+      <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="catalog-empty" class="hidden text-center py-16 bg-white rounded-3xl border border-slate-200">
+        <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-4">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h3 class="text-sm font-bold text-slate-800">No se encontraron libros</h3>
+        <p class="text-xs text-slate-500 mt-1">Ajusta los términos de búsqueda o el filtro de disponibilidad.</p>
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 2: CLIENT LOANS ==================== -->
+    <section id="view-my-loans" class="view-panel hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="font-serif text-2xl font-bold text-slate-900">Mis Préstamos de Biblioteca</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Control de libros en préstamo, fechas de vencimiento y devoluciones.</p>
+        </div>
+        <button onclick="appRouter.navigate('catalog')" class="px-4 py-2 rounded-xl bg-brand-50 text-brand-700 hover:bg-brand-100 text-xs font-semibold transition-all">
+          Solicitar Nuevo Préstamo
+        </button>
+      </div>
+
+      <div id="my-loans-container" class="space-y-4">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 3: CLIENT PURCHASES ==================== -->
+    <section id="view-my-sales" class="view-panel hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="font-serif text-2xl font-bold text-slate-900">Historial de Compras</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Comprobantes y recibos desglosados de tus adquisiciones.</p>
+        </div>
+        <button onclick="appRouter.navigate('catalog')" class="px-4 py-2 rounded-xl bg-brand-50 text-brand-700 hover:bg-brand-100 text-xs font-semibold transition-all">
+          Ir al Catálogo
+        </button>
+      </div>
+
+      <div id="my-sales-container" class="space-y-4">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ==================== VIEW 4: ADMIN DASHBOARD ==================== -->
+    <section id="view-admin" class="view-panel hidden space-y-8">
+      
+      <!-- Admin Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 text-white p-6 rounded-3xl shadow-lg border border-slate-800">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-sky-500/20 text-sky-300 border border-sky-400/30">Módulo Administrativo</span>
+            <span class="text-xs text-slate-400">Control Central</span>
+          </div>
+          <h2 class="font-serif text-2xl md:text-3xl font-bold mt-1">Gestión General de Operaciones y Usuarios</h2>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button onclick="adminComponent.openOpenLibraryModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all flex items-center space-x-1.5">
+            <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <span>Buscar en Open Library</span>
+          </button>
+          <button onclick="adminComponent.openCreateBookModal()" class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md transition-all flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <span>Crear Libro</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Summary Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Catálogo Total</span>
+            <div class="p-2 rounded-xl bg-sky-50 text-sky-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+          </div>
+          <div id="kpi-total-books" class="text-2xl font-extrabold text-slate-800 mt-2">0</div>
+          <p class="text-[11px] text-slate-400 mt-1">Títulos registrados</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Préstamos Activos</span>
+            <div class="p-2 rounded-xl bg-amber-50 text-amber-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+          </div>
+          <div id="kpi-active-loans" class="text-2xl font-extrabold text-amber-600 mt-2">0</div>
+          <p class="text-[11px] text-slate-400 mt-1">Libros en préstamo</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Préstamos Retrasados</span>
+            <div class="p-2 rounded-xl bg-rose-50 text-rose-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+          </div>
+          <div id="kpi-delayed-loans" class="text-2xl font-extrabold text-rose-600 mt-2">0</div>
+          <p class="text-[11px] text-slate-400 mt-1">Superaron fecha límite</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Ventas Totales</span>
+            <div class="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+          </div>
+          <div id="kpi-sales-revenue" class="text-2xl font-extrabold text-emerald-600 mt-2">$0.00</div>
+          <p id="kpi-sales-count" class="text-[11px] text-slate-400 mt-1">0 compras registradas</p>
+        </div>
+      </div>
+
+      <!-- Admin Sub Tabs -->
+      <div class="border-b border-slate-200">
+        <div class="flex space-x-6">
+          <button onclick="adminComponent.switchTab('books')" id="admin-tab-btn-books" class="admin-tab-btn active pb-3 text-xs font-bold border-b-2 border-brand-600 text-brand-600 flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <span>Gestión de Libros</span>
+          </button>
+          
+          <button onclick="adminComponent.switchTab('loans')" id="admin-tab-btn-loans" class="admin-tab-btn pb-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span>Gestión de Préstamos</span>
+          </button>
+          
+          <button onclick="adminComponent.switchTab('sales')" id="admin-tab-btn-sales" class="admin-tab-btn pb-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+            <span>Registro de Ventas</span>
+          </button>
+
+          <!-- NUEVO APARTADO: GESTIÓN DE USUARIOS -->
+          <button onclick="adminComponent.switchTab('users')" id="admin-tab-btn-users" class="admin-tab-btn pb-3 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <span>Gestión de Usuarios</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sub-Tab 1: Libros CRUD -->
+      <div id="admin-subtab-books" class="admin-subtab-panel space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3.5 px-4 font-semibold">ISBN</th>
+                  <th class="py-3.5 px-4 font-semibold">Título</th>
+                  <th class="py-3.5 px-4 font-semibold">Autor</th>
+                  <th class="py-3.5 px-4 font-semibold">Precio</th>
+                  <th class="py-3.5 px-4 font-semibold text-center">Stock Total</th>
+                  <th class="py-3.5 px-4 font-semibold text-center">Disponible</th>
+                  <th class="py-3.5 px-4 font-semibold text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="admin-books-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-Tab 2: Préstamos -->
+      <div id="admin-subtab-loans" class="admin-subtab-panel hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3.5 px-4 font-semibold">ID</th>
+                  <th class="py-3.5 px-4 font-semibold">Cliente / DNI</th>
+                  <th class="py-3.5 px-4 font-semibold">Libro</th>
+                  <th class="py-3.5 px-4 font-semibold">Préstamo</th>
+                  <th class="py-3.5 px-4 font-semibold">Fecha Límite</th>
+                  <th class="py-3.5 px-4 font-semibold">Devolución Real</th>
+                  <th class="py-3.5 px-4 font-semibold">Estado</th>
+                  <th class="py-3.5 px-4 font-semibold text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="admin-loans-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-Tab 3: Ventas -->
+      <div id="admin-subtab-sales" class="admin-subtab-panel hidden space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3.5 px-4 font-semibold">No. Venta</th>
+                  <th class="py-3.5 px-4 font-semibold">Cliente / DNI</th>
+                  <th class="py-3.5 px-4 font-semibold">Fecha</th>
+                  <th class="py-3.5 px-4 font-semibold">Ítems</th>
+                  <th class="py-3.5 px-4 font-semibold">Total</th>
+                  <th class="py-3.5 px-4 font-semibold text-right">Comprobante</th>
+                </tr>
+              </thead>
+              <tbody id="admin-sales-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-Tab 4: Gestión de Usuarios -->
+      <div id="admin-subtab-users" class="admin-subtab-panel hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-slate-800">Directorio de Usuarios y Clientes</h3>
+          <button onclick="userManagerComponent.openCreateUserModal()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-all flex items-center space-x-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+            <span>Crear Usuario</span>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3.5 px-4 font-semibold">ID</th>
+                  <th class="py-3.5 px-4 font-semibold">Identificación</th>
+                  <th class="py-3.5 px-4 font-semibold">Nombre</th>
+                  <th class="py-3.5 px-4 font-semibold">Email</th>
+                  <th class="py-3.5 px-4 font-semibold">Teléfono</th>
+                  <th class="py-3.5 px-4 font-semibold text-center">Rol</th>
+                  <th class="py-3.5 px-4 font-semibold text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 5: USER PROFILE ==================== -->
+    <section id="view-profile" class="view-panel hidden max-w-2xl mx-auto space-y-6">
+      <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-2.5 py-1 rounded-md">Configuración de Cuenta</span>
+          <h2 class="font-serif text-2xl font-bold text-slate-900 mt-2">Perfil de Usuario</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Modifica tus datos personales según sea necesario.</p>
+        </div>
+
+        <form id="profile-form" onsubmit="profileComponent.onSubmit(event)" class="space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs font-bold text-slate-700">Identificación (DNI / Cédula)</label>
+              <span class="text-[11px] font-semibold text-slate-400 flex items-center space-x-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <span>Inmutable por política de seguridad</span>
+              </span>
+            </div>
+            <input 
+              type="text" 
+              id="profile-identificacion" 
+              disabled 
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-500 font-mono text-xs cursor-not-allowed"
+            >
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Nombre Completo</label>
+            <input 
+              type="text" 
+              id="profile-nombre" 
+              required
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs"
+            >
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Correo Electrónico</label>
+            <input 
+              type="email" 
+              id="profile-email" 
+              required
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs"
+            >
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Teléfono</label>
+            <input 
+              type="text" 
+              id="profile-telefono" 
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs"
+            >
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Dirección de Residencia</label>
+            <textarea 
+              id="profile-direccion" 
+              rows="2"
+              class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs"
+            ></textarea>
+          </div>
+
+          <div class="pt-4 flex items-center justify-end">
+            <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md transition-all">
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
+      <p class="font-medium">Acme Store © 2026 • Arquitectura Hexagonal y Programación Orientada a Objetos (POO).</p>
+      <p class="text-[11px] text-slate-400 mt-1">Control de Inventario • Préstamos y Devoluciones • Venta Editorial • Seguridad Multi-capa</p>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL: BOOK DETAILS & SYNOPSIS ==================== -->
+  <div id="modal-book-detail" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative">
+      <button onclick="bookDetailComponent.closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <div class="flex flex-col sm:flex-row gap-6">
+        <div id="detail-cover-container" class="w-full sm:w-44 flex-shrink-0">
+          <img id="detail-cover-img" src="" alt="Portada" class="w-full h-60 object-cover rounded-2xl shadow-lg border border-slate-200">
+        </div>
+
+        <div class="flex-1 space-y-3">
+          <div>
+            <span id="detail-isbn" class="text-[10px] font-mono font-bold tracking-wider uppercase text-slate-400 block"></span>
+            <h3 id="detail-title" class="font-serif text-xl font-bold text-slate-900 leading-snug mt-0.5"></h3>
+            <p id="detail-author" class="text-xs font-semibold text-slate-600"></p>
+          </div>
+
+          <div class="space-y-1 text-xs text-slate-500 border-t border-b border-slate-100 py-2.5">
+            <div class="flex justify-between">
+              <span>Editorial:</span>
+              <span id="detail-editorial" class="font-medium text-slate-700"></span>
+            </div>
+            <div class="flex justify-between">
+              <span>Año de Publicación:</span>
+              <span id="detail-year" class="font-medium text-slate-700"></span>
+            </div>
+            <div class="flex justify-between">
+              <span>Stock Disponible:</span>
+              <span id="detail-stock" class="font-bold text-emerald-600"></span>
+            </div>
+          </div>
+
+          <div>
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Sinopsis / Resumen</h4>
+            <p id="detail-synopsis" class="text-xs text-slate-600 leading-relaxed max-h-36 overflow-y-auto custom-scroll pr-1"></p>
+          </div>
+
+          <div class="pt-3 flex items-center justify-between">
+            <span id="detail-price" class="text-xl font-extrabold text-slate-900"></span>
+            <div class="flex items-center space-x-2">
+              <button id="detail-btn-loan" class="px-3 py-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition-all">
+                Solicitar Préstamo
+              </button>
+              <button id="detail-btn-buy" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-md transition-all">
+                Comprar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: AUTHENTICATION (MANUAL ONLY) ==================== -->
+  <div id="modal-auth" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative">
+      
+      <button onclick="authComponent.closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <!-- Tabs: Login vs Register -->
+      <div class="flex border-b border-slate-200 mb-6">
+        <button onclick="authComponent.switchTab('login')" id="auth-tab-login" class="flex-1 pb-3 text-sm font-bold text-brand-600 border-b-2 border-brand-600">
+          Iniciar Sesión
+        </button>
+        <button onclick="authComponent.switchTab('register')" id="auth-tab-register" class="flex-1 pb-3 text-sm font-bold text-slate-400 border-b-2 border-transparent">
+          Registrarse
+        </button>
+      </div>
+
+      <!-- Form: Login (Pure Manual, Zero Demo) -->
+      <form id="form-login" onsubmit="authComponent.handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Correo Electrónico</label>
+          <input type="email" id="login-email" required placeholder="correo@ejemplo.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Contraseña</label>
+          <input type="password" id="login-password" required placeholder="Ingresa tu contraseña" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md transition-all">
+          Acceder al Sistema
+        </button>
+      </form>
+
+      <!-- Form: Register -->
+      <form id="form-register" onsubmit="authComponent.handleRegister(event)" class="hidden space-y-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Identificación (DNI / Cédula) *</label>
+          <input type="text" id="reg-id" required placeholder="Ej: CC-10928374" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Nombre Completo *</label>
+          <input type="text" id="reg-name" required placeholder="Tu nombre" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Correo Electrónico *</label>
+          <input type="email" id="reg-email" required placeholder="correo@ejemplo.com" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Teléfono</label>
+            <input type="text" id="reg-phone" placeholder="+1-555-..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Contraseña *</label>
+            <input type="password" id="reg-password" required minlength="6" placeholder="Mínimo 6 caracteres" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Dirección</label>
+          <input type="text" id="reg-address" placeholder="Dirección de residencia" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none">
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md transition-all">
+          Crear Cuenta
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SHOPPING CART ==================== -->
+  <div id="modal-cart" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative">
+      <button onclick="cartComponent.closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <div class="flex items-center space-x-2 mb-4">
+        <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+        <h3 class="font-serif text-xl font-bold text-slate-900">Carrito de Libros</h3>
+      </div>
+
+      <div id="cart-items-container" class="max-h-72 overflow-y-auto divide-y divide-slate-100 pr-1 custom-scroll mb-4"></div>
+
+      <div class="border-t border-slate-200 pt-4 space-y-2">
+        <div class="flex justify-between text-xs text-slate-500">
+          <span>Subtotal estimado:</span>
+          <span id="cart-subtotal" class="font-bold text-slate-800">$0.00</span>
+        </div>
+        <div class="flex justify-between text-sm font-extrabold text-slate-900">
+          <span>Total a Pagar:</span>
+          <span id="cart-total" class="text-brand-600 text-lg">$0.00</span>
+        </div>
+
+        <button onclick="cartComponent.checkout()" id="btn-cart-checkout" class="w-full mt-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-lg transition-all flex items-center justify-center space-x-1.5">
+          <span>Finalizar Compra y Facturar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: LOAN REQUEST ==================== -->
+  <div id="modal-loan" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative">
+      <button onclick="loanComponent.closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <div class="flex items-center space-x-2 mb-2">
+        <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <h3 class="font-serif text-xl font-bold text-slate-900">Solicitar Préstamo</h3>
+      </div>
+      <p id="loan-modal-book-title" class="text-xs text-slate-500 font-semibold mb-4"></p>
+
+      <form id="form-loan" onsubmit="loanComponent.handleConfirmLoan(event)" class="space-y-4">
+        <input type="hidden" id="loan-book-id">
+
+        <div id="loan-user-selector-container" class="hidden">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Prestar a Usuario:</label>
+          <select id="loan-target-user-id" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs bg-white"></select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Préstamo</label>
+          <input type="date" id="loan-fecha-prestamo" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Fecha Tentativa de Devolución</label>
+          <input type="date" id="loan-fecha-tentativa" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+          <p class="text-[10px] text-slate-400 mt-1">Plazo estándar: 14 días a partir de la entrega.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Notas / Observaciones</label>
+          <textarea id="loan-notas" rows="2" placeholder="Observaciones de entrega..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md transition-all">
+          Confirmar Préstamo
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: RETURN LOAN (ADMIN) ==================== -->
+  <div id="modal-return-loan" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative">
+      <button onclick="adminComponent.closeReturnModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <div class="flex items-center space-x-2 mb-2">
+        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        <h3 class="font-serif text-xl font-bold text-slate-900">Registrar Devolución</h3>
+      </div>
+      <p id="return-modal-info" class="text-xs text-slate-500 mb-4"></p>
+
+      <form id="form-return-loan" onsubmit="adminComponent.handleConfirmReturn(event)" class="space-y-4">
+        <input type="hidden" id="return-loan-id">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Fecha de Devolución Real</label>
+          <input type="date" id="return-fecha-real" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Observaciones</label>
+          <textarea id="return-notas" rows="2" placeholder="Estado del ejemplar entregado..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all">
+          Procesar Reingreso al Inventario (+1)
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CREATE / EDIT BOOK (ADMIN) ==================== -->
+  <div id="modal-book" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto custom-scroll">
+      <button onclick="adminComponent.closeBookModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <h3 id="book-modal-title" class="font-serif text-xl font-bold text-slate-900 mb-4">Crear Nuevo Libro</h3>
+
+      <form id="form-book" onsubmit="adminComponent.handleSaveBook(event)" class="space-y-3">
+        <input type="hidden" id="book-form-id">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">ISBN *</label>
+            <input type="text" id="book-form-isbn" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Año de Publicación</label>
+            <input type="number" id="book-form-anio" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Título *</label>
+          <input type="text" id="book-form-titulo" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Autor *</label>
+            <input type="text" id="book-form-autor" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Editorial</label>
+            <input type="text" id="book-form-editorial" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Sinopsis / Resumen de la Obra *</label>
+          <textarea id="book-form-resumen" rows="3" required placeholder="Escribe el resumen o argumento del libro..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs"></textarea>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Precio Venta ($) *</label>
+            <input type="number" step="0.01" id="book-form-precio" required min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Stock Total *</label>
+            <input type="number" id="book-form-stock-total" required min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Stock Disponible *</label>
+            <input type="number" id="book-form-stock-disponible" required min="0" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+          </div>
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md transition-all">
+            Guardar Libro en Inventario
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: CREATE / EDIT USER (ADMIN) ==================== -->
+  <div id="modal-user" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative">
+      <button onclick="userManagerComponent.closeModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <h3 id="user-modal-title" class="font-serif text-xl font-bold text-slate-900 mb-4">Gestionar Usuario</h3>
+
+      <form id="form-user-admin" onsubmit="userManagerComponent.handleSaveUser(event)" class="space-y-3">
+        <input type="hidden" id="user-form-id">
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Identificación (DNI / Cédula) *</label>
+          <input type="text" id="user-form-identificacion" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Nombre Completo *</label>
+          <input type="text" id="user-form-nombre" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Correo Electrónico *</label>
+          <input type="email" id="user-form-email" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Teléfono</label>
+            <input type="text" id="user-form-telefono" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Rol en Sistema *</label>
+            <select id="user-form-rol" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white">
+              <option value="cliente">Cliente / Lector</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Dirección</label>
+          <input type="text" id="user-form-direccion" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div id="user-form-password-container">
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Contraseña (Solo para nuevo usuario o cambiar)</label>
+          <input type="password" id="user-form-password" minlength="6" placeholder="Mínimo 6 caracteres" class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs">
+        </div>
+
+        <div class="pt-3">
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all">
+            Guardar Usuario
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: OPEN LIBRARY SEARCH & IMPORT ==================== -->
+  <div id="modal-openlibrary" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative flex flex-col max-h-[90vh]">
+      <button onclick="adminComponent.closeOpenLibraryModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <div class="flex items-center space-x-2 mb-2">
+        <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+        <h3 class="font-serif text-xl font-bold text-slate-900">Buscar e Importar desde Open Library API</h3>
+      </div>
+      <p class="text-xs text-slate-500 mb-4">Busca cualquier libro a nivel internacional e impórtalo a tu base de datos SQL con sinopsis y portada.</p>
+
+      <div class="flex space-x-2 mb-4">
+        <input 
+          type="text" 
+          id="ol-search-input" 
+          placeholder="Escribe el nombre del libro o autor (Ej: Harry Potter, Gabriel García Márquez)..." 
+          class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500 focus:outline-none"
+          onkeydown="if(event.key==='Enter') adminComponent.searchOpenLibrary()"
+        >
+        <button onclick="adminComponent.searchOpenLibrary()" id="btn-ol-search" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md transition-all flex items-center space-x-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <span>Buscar</span>
+        </button>
+      </div>
+
+      <div id="ol-results-container" class="flex-1 overflow-y-auto divide-y divide-slate-100 pr-1 custom-scroll space-y-3">
+        <div class="text-center py-12 text-slate-400">
+          <svg class="w-10 h-10 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+          <p class="text-xs">Ingresa un término para consultar el catálogo global.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SALE RECEIPT ==================== -->
+  <div id="modal-receipt" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative">
+      <button onclick="salesComponent.closeReceiptModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <div class="text-center pb-4 border-b border-slate-200">
+        <span class="text-xs font-bold uppercase tracking-wider text-brand-600">Comprobante de Venta</span>
+        <h3 id="receipt-id-title" class="font-serif text-xl font-bold text-slate-900 mt-1">Factura Oficial</h3>
+        <p id="receipt-date" class="text-xs text-slate-400 mt-0.5"></p>
+      </div>
+
+      <div class="py-4 space-y-3">
+        <div class="flex justify-between text-xs">
+          <span class="text-slate-500">Cliente:</span>
+          <span id="receipt-customer-name" class="font-bold text-slate-800"></span>
+        </div>
+        <div class="flex justify-between text-xs">
+          <span class="text-slate-500">Identificación:</span>
+          <span id="receipt-customer-id" class="font-mono text-slate-700"></span>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="text-slate-400 text-left">
+                <th class="pb-2">Ítem</th>
+                <th class="pb-2 text-center">Cant.</th>
+                <th class="pb-2 text-right">Precio</th>
+                <th class="pb-2 text-right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="receipt-items-table" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 flex justify-between items-center text-sm font-extrabold text-slate-900">
+          <span>Total Facturado:</span>
+          <span id="receipt-total" class="text-emerald-600 text-lg"></span>
+        </div>
+      </div>
+
+      <button onclick="window.print()" class="w-full mt-2 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all flex items-center justify-center space-x-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        <span>Imprimir Comprobante</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== PURE OOP JAVASCRIPT MODULES ==================== -->
+  <script src="/js/ApiClient.js"></script>
+  <script src="/js/ToastNotificationComponent.js"></script>
+  <script src="/js/AuthComponent.js"></script>
+  <script src="/js/BookDetailModalComponent.js"></script>
+  <script src="/js/CatalogComponent.js"></script>
+  <script src="/js/CartComponent.js"></script>
+  <script src="/js/LoanComponent.js"></script>
+  <script src="/js/SalesComponent.js"></script>
+  <script src="/js/UserManagerComponent.js"></script>
+  <script src="/js/AdminComponent.js"></script>
+  <script src="/js/ProfileComponent.js"></script>
+  <script src="/js/AppRouter.js"></script>
+
+</body>
+</html>
