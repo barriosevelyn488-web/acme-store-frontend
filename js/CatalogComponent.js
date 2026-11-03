@@ -87,13 +87,15 @@ class CatalogComponent {
         const escapedBook = JSON.stringify(book).replace(/"/g, '&quot;');
 
         return `
-          <div class="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden group">
+          <div 
+            onclick="bookDetailComponent.show(${escapedBook})"
+            class="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-brand-300 transition-all duration-300 flex flex-col overflow-hidden group cursor-pointer"
+            title="Haz clic en cualquier parte de la tarjeta para ver la sinopsis completa"
+          >
             
-            <!-- Book Cover Art (Clickable for Synopsis Modal) -->
+            <!-- Book Cover Art -->
             <div 
-              onclick="bookDetailComponent.show(${escapedBook})"
-              class="h-56 bg-gradient-to-tr ${grad} p-5 flex flex-col justify-between text-white relative overflow-hidden cursor-pointer"
-              title="Haz clic para ver la sinopsis completa"
+              class="h-56 bg-gradient-to-tr ${grad} p-5 flex flex-col justify-between text-white relative overflow-hidden"
             >
               <div class="flex justify-between items-start z-10">
                 <span class="text-[10px] font-mono font-bold uppercase bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm border border-white/10">
@@ -121,9 +123,9 @@ class CatalogComponent {
                   ${book.titulo}
                 </h3>
                 <p class="text-xs text-slate-300 font-medium mt-1 truncate">${book.autor}</p>
-                <span class="text-[10px] text-sky-300 font-medium mt-2 inline-flex items-center space-x-1 underline underline-offset-2">
-                  <span>Ver sinopsis</span>
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                <span class="text-[10px] text-sky-200 font-semibold mt-2 inline-flex items-center space-x-1 bg-white/10 px-2 py-0.5 rounded-md backdrop-blur-sm">
+                  <svg class="w-3 h-3 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                  <span>Ver sinopsis y detalle</span>
                 </span>
               </div>
 
@@ -154,19 +156,19 @@ class CatalogComponent {
                 </div>
 
                 <div class="flex items-center space-x-2">
-                  <!-- Loan Button -->
+                  <!-- Loan Button (Stops propagation to avoid opening modal) -->
                   <button 
-                    onclick="loanComponent.openLoanModal(${book.id}, '${book.titulo.replace(/'/g, "\\'")}')" 
+                    onclick="event.stopPropagation(); loanComponent.openLoanModal(${book.id}, '${book.titulo.replace(/'/g, "\\'")}')" 
                     ${!canOperate ? 'disabled' : ''}
                     class="p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-brand-600 hover:border-brand-500 hover:bg-brand-50 disabled:opacity-40 disabled:pointer-events-none transition-all"
-                    title="Solicitar Préstamo"
+                    title="Solicitar Préstamo de Lectura"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                   </button>
 
-                  <!-- Buy Button -->
+                  <!-- Buy Button (Stops propagation to avoid opening modal) -->
                   <button 
-                    onclick="cartComponent.addItem(${escapedBook})" 
+                    onclick="event.stopPropagation(); cartComponent.addItem(${escapedBook})" 
                     ${!canOperate ? 'disabled' : ''}
                     class="px-3.5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs shadow-md shadow-brand-600/20 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center space-x-1"
                     title="Comprar libro"
