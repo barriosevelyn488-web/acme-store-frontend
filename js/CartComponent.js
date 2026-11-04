@@ -166,7 +166,7 @@ class CartComponent {
     totalEl.textContent = `$${total.toFixed(2)}`;
   }
 
-  async checkout() {
+  checkout() {
     if (!authComponent.currentUser) {
       toastNotification.show('Debes iniciar sesión con tu correo y contraseña para comprar.', 'info');
       this.closeModal();
@@ -174,28 +174,14 @@ class CartComponent {
       return;
     }
 
-    if (this._items.length === 0) return;
+    if (this._items.length === 0) {
+      toastNotification.show('Tu carrito está vacío.', 'warning');
+      return;
+    }
 
-    try {
-      const payload = {
-        items: this._items.map(i => ({
-          libroId: i.id,
-          cantidad: i.cantidad
-        }))
-      };
-
-      const res = await apiClient.post('/sales', payload);
-      this.clear();
-      this.closeModal();
-      toastNotification.show('¡Compra completada con éxito! Inventario actualizado.', 'success');
-
-      catalogComponent.loadBooks();
-
-      if (res.data && res.data.id) {
-        salesComponent.showReceipt(res.data.id);
-      }
-    } catch (err) {
-      toastNotification.show(err.message || 'Error al procesar la compra', 'error');
+    this.closeModal();
+    if (typeof checkoutModalComponent !== 'undefined') {
+      checkoutModalComponent.openModal(this._items, this.calculateTotal());
     }
   }
 }
