@@ -4,6 +4,7 @@ class CatalogComponent {
     this._books = [];
     this._searchQuery = '';
     this._availableOnly = false;
+    this._selectedCategory = 'all';
     this._debounceTimer = null;
   }
 
@@ -55,6 +56,50 @@ class CatalogComponent {
     this.loadBooks();
   }
 
+  filterCategory(category) {
+    this._selectedCategory = category;
+    const pills = document.querySelectorAll('.category-pill-btn');
+    pills.forEach(pill => {
+      const cat = pill.getAttribute('data-category');
+      if (cat === category) {
+        pill.className = 'category-pill-btn active px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-white shadow-sm transition-all whitespace-nowrap';
+      } else {
+        pill.className = 'category-pill-btn px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-brand-600 transition-all whitespace-nowrap';
+      }
+    });
+    this.render();
+  }
+
+  _resolveBookCategory(book) {
+    if (book.categoria) return book.categoria;
+    const title = (book.titulo || '').toLowerCase();
+    const author = (book.autor || '').toLowerCase();
+
+    if (
+      title.includes('clean') || 
+      title.includes('code') || 
+      title.includes('pattern') || 
+      title.includes('architecture') || 
+      title.includes('software') || 
+      author.includes('martin') || 
+      author.includes('gamma')
+    ) {
+      return { id: 'software', label: 'Software e Ingeniería', badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+    }
+    if (
+      title.includes('1984') || 
+      title.includes('fahrenheit') || 
+      title.includes('hitchhiker') || 
+      title.includes('galaxy') || 
+      author.includes('orwell') || 
+      author.includes('bradbury') || 
+      author.includes('adams')
+    ) {
+      return { id: 'scifi', label: 'Ciencia Ficción y Distopía', badgeClass: 'bg-teal-50 text-teal-700 border-teal-200' };
+    }
+    return { id: 'literatura', label: 'Literatura Clásica', badgeClass: 'bg-amber-50 text-amber-700 border-amber-200' };
+  }
+
   _getCoverGradient(id) {
     const gradients = [
       'from-slate-800 to-indigo-950',
@@ -70,19 +115,28 @@ class CatalogComponent {
     const grid = document.getElementById('catalog-grid');
     const emptyState = document.getElementById('catalog-empty');
 
-    if (!this._books || this._books.length === 0) {
+    let displayedBooks = this._books || [];
+    if (this._selectedCategory && this._selectedCategory !== 'all') {
+      displayedBooks = displayedBooks.filter(book => {
+        const cat = this._resolveBookCategory(book);
+        return cat.id === this._selectedCategory;
+      });
+    }
+
+    if (displayedBooks.length === 0) {
       grid.innerHTML = '';
       emptyState.classList.remove('hidden');
       return;
     }
 
     emptyState.classList.add('hidden');
-    grid.innerHTML = this._books
+    grid.innerHTML = displayedBooks
       .map(book => {
         const canOperate = book.stockDisponible > 0;
         const grad = this._getCoverGradient(book.id);
         const cleanIsbn = book.isbn ? book.isbn.replace(/[^0-9X]/gi, '') : '';
         const coverUrl = cleanIsbn ? `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-M.jpg?default=false` : '';
+        const catInfo = this._resolveBookCategory(book);
 
         const escapedBook = JSON.stringify(book).replace(/"/g, '&quot;');
 
@@ -134,7 +188,13 @@ class CatalogComponent {
 
             <!-- Metadata & Actions -->
             <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
-              <div class="space-y-1 text-xs text-slate-500">
+              <div class="space-y-1.5 text-xs text-slate-500">
+                <div class="pb-1 mb-1 border-b border-slate-100 flex items-center justify-between">
+                  <span class="text-[10px] uppercase font-bold text-slate-400">Categoría</span>
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full border ${catInfo.badgeClass}">
+                    ${catInfo.label}
+                  </span>
+                </div>
                 <div class="flex justify-between">
                   <span>Editorial:</span>
                   <span class="font-medium text-slate-700">${book.editorial || 'No especificada'}</span>
