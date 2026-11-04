@@ -1,12 +1,14 @@
 // Pure OOP ApiClient Class
 class ApiClient {
   constructor() {
-    this._baseUrl = window.ACME_API_URL
+    this._baseUrl = window.LIBRARIAN_API_URL
+      || window.ACME_API_URL
+      || localStorage.getItem('librarian_api_url')
       || localStorage.getItem('acme_api_url')
       || ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:3000/api'
         : '/api');
-    this._storageKey = 'acme_store_token';
+    this._storageKey = 'librarian_token';
   }
 
   getBaseUrl() {
@@ -16,12 +18,12 @@ class ApiClient {
   setBaseUrl(url) {
     if (url) {
       this._baseUrl = url.replace(/\/+$/, '');
-      localStorage.setItem('acme_api_url', this._baseUrl);
+      localStorage.setItem('librarian_api_url', this._baseUrl);
     }
   }
 
   getToken() {
-    return localStorage.getItem(this._storageKey) || null;
+    return localStorage.getItem(this._storageKey) || localStorage.getItem('acme_store_token') || null;
   }
 
   setToken(token) {
@@ -29,6 +31,7 @@ class ApiClient {
       localStorage.setItem(this._storageKey, token);
     } else {
       localStorage.removeItem(this._storageKey);
+      localStorage.removeItem('acme_store_token');
     }
   }
 

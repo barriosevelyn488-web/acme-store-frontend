@@ -1,11 +1,11 @@
-# Acme Store - Frontend (100% POO)
+# Librarian - Frontend (100% POO)
 
 Aplicacion Web para la Gestion de Biblioteca y Tienda Editorial, desarrollada estrictamente bajo Programacion Orientada a Objetos (POO) en JavaScript Vanilla y diseno con Tailwind CSS.
 
 ---
 
 ## 1. Repositorio Backend Conectado
-- **Backend API REST:** [https://github.com/barriosevelyn488-web/acme-store-backend](https://github.com/barriosevelyn488-web/acme-store-backend)
+- **Backend API REST:** [https://github.com/barriosevelyn488-web/librarian-backend](https://github.com/barriosevelyn488-web/librarian-backend)
 
 ---
 

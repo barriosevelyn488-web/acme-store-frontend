@@ -1,7 +1,7 @@
 {
-  "name": "acme-store-frontend",
+  "name": "librarian-frontend",
   "version": "1.0.0",
-  "description": "Acme Store - Client Application (Pure OOP, Clean UI/UX, Zero Emojis, Vercel Ready)",
+  "description": "Librarian - Client Application (Pure OOP, Clean UI/UX, Zero Emojis, Vercel Ready)",
   "main": "index.html",
   "scripts": {
     "start": "npx serve -l 8080 .",
