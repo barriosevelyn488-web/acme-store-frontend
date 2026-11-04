@@ -73,11 +73,9 @@ class LoanComponent {
     try {
       await apiClient.post('/loans', payload);
       this.closeModal();
-      toastNotification.show('Préstamo registrado. Stock disponible actualizado.', 'success');
-      catalogComponent.loadBooks();
-      if (appRouter.currentView === 'my-loans') {
-        this.loadMyLoans();
-      }
+      toastNotification.show('Préstamo registrado exitosamente. Stock disponible actualizado.', 'success');
+      await catalogComponent.loadBooks();
+      appRouter.navigate('my-loans');
     } catch (err) {
       toastNotification.show(err.message || 'Error al solicitar préstamo', 'error');
     }
@@ -85,11 +83,36 @@ class LoanComponent {
 
   async loadMyLoans() {
     try {
-      const res = await apiClient.get('/loans/my');
+      let res;
+      try {
+        res = await apiClient.get('/loans/my-loans');
+      } catch (e) {
+        res = await apiClient.get('/loans/my');
+      }
       this._loans = res.data || [];
       this.renderMyLoans();
     } catch (err) {
       toastNotification.show('Error al cargar historial de préstamos', 'error');
+    }
+  }
+
+  async returnLoan(loanId, libroTitulo = 'libro') {
+    if (!confirm(`¿Confirmas la devolución de "${libroTitulo}" a la biblioteca?`)) {
+      return;
+    }
+
+    try {
+      try {
+        await apiClient.patch(`/loans/${loanId}/return`);
+      } catch (err) {
+        await apiClient.post(`/loans/${loanId}/return`);
+      }
+
+      toastNotification.show(`Devolución de "${libroTitulo}" registrada exitosamente.`, 'success');
+      await this.loadMyLoans();
+      await catalogComponent.loadBooks();
+    } catch (err) {
+      toastNotification.show(err.message || 'Error al registrar devolución', 'error');
     }
   }
 
@@ -135,23 +158,41 @@ class LoanComponent {
               ${loan.notas ? `<p class="text-[11px] text-slate-400 italic">Notas: ${loan.notas}</p>` : ''}
             </div>
 
-            <div class="flex flex-wrap items-center gap-3 text-xs">
-              <div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
-                <span class="text-[10px] text-slate-400 uppercase font-bold block">Fecha Préstamo</span>
-                <span class="font-semibold text-slate-700">${loan.fechaPrestamo}</span>
-              </div>
-
-              <div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
-                <span class="text-[10px] text-slate-400 uppercase font-bold block">Fecha Límite</span>
-                <span class="font-semibold ${isDelayed ? 'text-rose-600 font-bold' : 'text-slate-700'}">${loan.fechaTentativaDevolucion}</span>
-              </div>
-
-              ${loan.fechaDevolucionReal ? `
-                <div class="bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100">
-                  <span class="text-[10px] text-emerald-600 uppercase font-bold block">Devuelto el:</span>
-                  <span class="font-bold text-emerald-700">${loan.fechaDevolucionReal}</span>
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div class="flex flex-wrap items-center gap-3 text-xs">
+                <div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
+                  <span class="text-[10px] text-slate-400 uppercase font-bold block">Fecha Préstamo</span>
+                  <span class="font-semibold text-slate-700">${loan.fechaPrestamo}</span>
                 </div>
-              ` : ''}
+
+                <div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-100">
+                  <span class="text-[10px] text-slate-400 uppercase font-bold block">Fecha Límite</span>
+                  <span class="font-semibold ${isDelayed ? 'text-rose-600 font-bold' : 'text-slate-700'}">${loan.fechaTentativaDevolucion}</span>
+                </div>
+
+                ${loan.fechaDevolucionReal ? `
+                  <div class="bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100">
+                    <span class="text-[10px] text-emerald-600 uppercase font-bold block">Devuelto el:</span>
+                    <span class="font-bold text-emerald-700">${loan.fechaDevolucionReal}</span>
+                  </div>
+                ` : ''}
+              </div>
+
+              <div class="pt-2 sm:pt-0">
+                ${!isReturned ? `
+                  <button 
+                    onclick="loanComponent.returnLoan(${loan.id}, '${(loan.libro?.titulo || 'Libro #' + loan.libroId).replace(/'/g, "\\'")}')" 
+                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Devolver Libro</span>
+                  </button>
+                ` : `
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 text-xs font-medium">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Ejemplar Devuelto</span>
+                  </span>
+                `}
+              </div>
             </div>
           </div>
         `;
