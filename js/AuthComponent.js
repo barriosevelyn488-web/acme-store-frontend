@@ -61,10 +61,17 @@ class AuthComponent {
 
     try {
       const response = await apiClient.post('/auth/login', { email, password });
-      apiClient.setToken(response.data.token);
-      this._currentUser = response.data.user;
+      const token = response.token || response.data?.token;
+      const user = response.data?.user || (response.data && response.data.rol ? response.data : null);
 
-      toastNotification.show(`Bienvenido, ${this._currentUser.nombre}.`, 'success');
+      if (!token || !user) {
+        throw new Error('Respuesta de autenticación incompleta.');
+      }
+
+      apiClient.setToken(token);
+      this._currentUser = user;
+
+      toastNotification.show(`Bienvenido, ${this._currentUser.nombre || 'Usuario'}.`, 'success');
       this.closeModal();
       this.renderAuthenticatedNav();
 
@@ -99,8 +106,15 @@ class AuthComponent {
         rol: 'cliente'
       });
 
-      apiClient.setToken(response.data.token);
-      this._currentUser = response.data.user;
+      const token = response.token || response.data?.token;
+      const user = response.data?.user || (response.data && response.data.rol ? response.data : null);
+
+      if (!token || !user) {
+        throw new Error('Respuesta de registro incompleta.');
+      }
+
+      apiClient.setToken(token);
+      this._currentUser = user;
 
       toastNotification.show('Cuenta creada exitosamente.', 'success');
       this.closeModal();
